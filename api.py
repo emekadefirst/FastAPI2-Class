@@ -1,29 +1,25 @@
 import os
 import json
 import requests
-from dotenv import load_dotenv
+from app import all_product, product_id
 
-load_dotenv()
-
-
-key = os.getenv("paystack")
-# paystack api
-url = "https://api.paystack.co/transaction/initialize"
-headers = {"Authorization": f"Bearer {key}"}
-data = {
-    "email": "laitankorede@gmail.com",
-    "amount": "100000"
-}
-response = requests.post(url, headers=headers, data=json.dumps(data))
-print(response.json())
+# print(all_product())
+print(product_id(1))
 
 
-# product api
-url = "https://dummyjson.com/products"
-response = requests.get(url)
-products = response.json()
-print("Check out what we have")
-for product in products["products"]:
-    item = product["title"]
-    price = product["price"]
-    print(f"We have {item} which goes for ${price}")
+# product_url = "https://dummyjson.com/products"
+
+# response = requests.get(product_url)
+
+# if response.status_code == 200:
+#     products = response.json()
+#     items = []
+#     for product in products["products"]:
+#         name = product["title"]
+#         price = product["price"]
+#         item = {
+#             "name": name,
+#             "price": price * 1635
+#         }
+#         return items.append(item)
+# return items
