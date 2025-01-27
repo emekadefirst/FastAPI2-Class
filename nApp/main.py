@@ -1,8 +1,13 @@
+import uvicorn
 from fastapi import FastAPI
 from sessions import create, all_user, user_by_id
 from schemas import User
+from chat import chat
+
 
 app = FastAPI()
+
+app.include_router(chat)
 
 @app.post("/register")
 def register(user: User):
@@ -22,3 +27,7 @@ def user_id(id):
         return user
     except Exception as e:
         return e
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)

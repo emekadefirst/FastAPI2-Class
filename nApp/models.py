@@ -16,5 +16,12 @@ class User(SQLModel, table=True):
     email : str = Field(max_length=100, unique=True)
     password : str | None
 
+class Message(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    message: str
+    
+    
+
+
 
 create_db_and_table()

@@ -1,6 +1,25 @@
+import asyncio
 from sqlmodel import Session
-from models import User, engine
+from sqlmodel.ext.asyncio.session import AsyncSession
+from models import User, Message,  engine
 
+from sqlalchemy.ext.asyncio import create_async_engine
+
+DATABASE_URL = "sqlite+aiosqlite:///database.db"
+maze = create_async_engine(DATABASE_URL, echo=False)
+
+
+async def add_chat(message: str):
+    session = AsyncSession(maze)
+    message = Message(message=message)
+    session.add(message)
+    session.commit()
+    return "Message saved"
+
+def all_chat():
+    session = Session(engine)
+    chats = session.query(Message).all()
+    return chats
 
 # Create User
 def create(username: str, email,  password: str):
@@ -12,7 +31,7 @@ def create(username: str, email,  password: str):
             return "User was sucessfully created"
     except Exception as e:
         return "User failed to create"
-    
+
 
 # Get all Users
 def all_user():
@@ -22,8 +41,8 @@ def all_user():
             return users
     except Exception as e:
         return "Failed to get all users"
-    
-    
+
+
 # Get User by ID
 def user_by_id(id):
     try:
