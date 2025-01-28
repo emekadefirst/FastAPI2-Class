@@ -1,38 +1,47 @@
 import asyncio
-import http.client
+import aiohttp
 from bs4 import BeautifulSoup
 
-DOMAIN = "arise.tv"
+DOMAIN = "https://arise.tv"
 PATH = "category/business/"
 
 
 async def fetch():
-    page_number = 0
-    while True:
-        yield page_number  # Async generator producing values
-        page_number += 1
-        conn = http.client.HTTPConnection(DOMAIN)
-        conn.request("GET", f"{PATH}/page/{page_number}/")
-        response = conn.getresponse()
-        if response.status == 200:
-            data = response.read()
-            soup = BeautifulSoup(
-                data, "html.parser"
-            )  # Use `data` instead of `response.content`
-            for article in soup.find_all("article"):
-                title = article.find("h3")
-                if title:
-                    print(title.text.strip())
-                time = article.find("span", {"class": "date-container"})
-                if time:
-                    print(time.text.strip())
-                print("\n")
-        conn.close()
+    page_number = 1  # Start from page 1
+    async with aiohttp.ClientSession() as session:  # Use aiohttp session for HTTPS
+        while True:
+            url = f"{DOMAIN}/{PATH}page/{page_number}/"
+            print(f"Fetching: {url}")
+
+            async with session.get(url) as response:
+                if response.status != 200:
+                    print(
+                        f"Page {page_number} returned status {response.status}. Exiting."
+                    )
+                    break
+
+                data = await response.text()
+                soup = BeautifulSoup(data, "html.parser")
+
+                articles = soup.find_all("article")
+                if not articles:  # Stop if no articles are found
+                    print(f"No articles found on page {page_number}. Exiting.")
+                    break
+
+                for article in articles:
+                    title = article.find("h3")
+                    if title:
+                        print(f"Title: {title.text.strip()}")
+                    time = article.find("span", {"class": "date-container"})
+                    if time:
+                        print(f"Date: {time.text.strip()}")
+                    print("\n")
+
+                page_number += 1  # Move to the next page
 
 
 async def main():
-    async for _ in fetch():  # Consume the async generator
-        pass
+    await fetch()  # Call fetch as a regular coroutine
 
 
 # Run the main coroutine
